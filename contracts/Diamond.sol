@@ -10,8 +10,11 @@ pragma solidity ^0.8.0;
 
 import {LibDiamond} from "./libraries/LibDiamond.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
+import "./libraries/AppStorage.sol";
 
 contract Diamond {
+    AppStorageStruct internal _storage;
+
     constructor(address _contractOwner, address _diamondCutFacet) payable {
         LibDiamond.setContractOwner(_contractOwner);
 
