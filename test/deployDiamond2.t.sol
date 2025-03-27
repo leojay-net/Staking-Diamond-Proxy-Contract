@@ -91,7 +91,7 @@ contract StakingFacetTest is DiamondUtils, IDiamondCut {
         
         stakeTokenF.mint(owner, INITIAL_BALANCE);
         stakeTokenF.mint(user1, INITIAL_BALANCE);
-        // rewardTokenF.mint(owner, INITIAL_BALANCE * 10);
+        
         rewardTokenF.mint(user3, REWARD_AMOUNT);
 
         
@@ -100,45 +100,45 @@ contract StakingFacetTest is DiamondUtils, IDiamondCut {
     }
 
     function testGetterFunctions() public {
-        // Setup: Deploy the ERC20Facet contract with known parameters
+        
         ERC20Facet token = new ERC20Facet("TestToken", "TST");
 
-        // Test name() function
+        
         assertEq(token.name(), "TestToken", "Name should match constructor input");
 
-        // Test symbol() function
+        
         assertEq(token.symbol(), "TST", "Symbol should match constructor input");
 
-        // Test decimals() function
+        
         assertEq(token.decimals(), 18, "Decimals should be 18");
 
-        // Test totalSupply() function before minting
+        
         assertEq(token.totalSupply(), 0, "Initial total supply should be 0");
 
-        // Mint some tokens to test balanceOf and totalSupply
+        
         address testAccount = address(0x1);
         uint256 mintAmount = 1000e18;
         vm.prank(address(this));
         token.mint(testAccount, mintAmount);
 
-        // Test balanceOf() function after minting
+        
         assertEq(token.balanceOf(testAccount), mintAmount, "Minted balance should match");
 
-        // Test totalSupply() function after minting
+        
         assertEq(token.totalSupply(), mintAmount, "Total supply should match minted amount");
 
-        // Test allowance() function before approval
+        
         address spender = address(0x2);
         assertEq(token.allowance(testAccount, spender), 0, "Initial allowance should be 0");
 
-        // Approve some tokens and test allowance
+        
         vm.prank(testAccount);
         token.approve(spender, 500e18);
         assertEq(token.allowance(testAccount, spender), 500e18, "Allowance should match approved amount");
 }
 
 function testConstructorParameters() public {
-    // Test different token names and symbols
+    
     ERC20Facet token1 = new ERC20Facet("CoolToken", "COOL");
     assertEq(token1.name(), "CoolToken", "Name should match constructor input");
     assertEq(token1.symbol(), "COOL", "Symbol should match constructor input");
@@ -187,7 +187,7 @@ function testAllowanceAndApproval() public {
     token.approve(spender2, 200e18);
     assertEq(token.allowance(owner, spender2), 200e18, "Allowance for spender2 incorrect");
 
-    // Verify that approving a different spender doesn't affect previous allowances
+    
     assertEq(token.allowance(owner, spender1), 100e18, "Spender1 allowance should remain unchanged");
 }
 
@@ -332,25 +332,25 @@ function testAllowanceAndApproval() public {
         vm.stopPrank();
     }
 
-//  function _prepareRewards(uint256 amount) internal {
-//         // Transfer rewards to the staking contract
-//         rewardTokenF.transfer(address(stakingF), amount);
+
+
+
         
-//         // Set up rewards
-//         vm.startPrank(owner);
-//         stakingF.setRewardsDuration(REWARD_DURATION);
-//         stakingF.notifyRewardAmount(amount);
-//         vm.stopPrank();
-//     }
+
+
+
+
+
+
 
 
 function _prepareRewards(uint256 amount) internal {
-    // Transfer rewards to the staking contract
+    
     vm.startPrank(user3);
     rewardTokenF.transfer(address(stakingF), amount);
     vm.stopPrank();
     
-    // Set up rewards
+    
     vm.startPrank(owner);
     stakingF.setRewardsDuration(REWARD_DURATION);
     stakingF.notifyRewardAmount(amount);
@@ -358,22 +358,22 @@ function _prepareRewards(uint256 amount) internal {
 }
 
 function testRewardDistribution_SingleUser() public {
-    // Stake tokens
+    
     vm.startPrank(owner);
     stakeTokenF.approve(address(stakingF), STAKE_AMOUNT);
     stakingF.stakeERC20(STAKE_AMOUNT);
     vm.stopPrank();
     
-    // Prepare and distribute rewards
+    
     _prepareRewards(REWARD_AMOUNT);
 
-    // Skip half the duration
+    
     vm.warp(block.timestamp + (REWARD_DURATION / 2));
 
-    // Check earned rewards
+    
     uint256 earned = stakingF.earned(owner);
     
-    // Claim rewards
+    
     vm.prank(owner);
     stakingF.getReward();
     
@@ -384,33 +384,33 @@ function testRewardDistribution_SingleUser() public {
 }
 
 function testRewardDistribution_MultipleUsers() public {
-    // Transfer rewards to the staking contract
+    
     vm.startPrank(user3);
     rewardTokenF.transfer(address(stakingF), REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Set up rewards duration and amount
+    
     vm.startPrank(owner);
     stakingF.setRewardsDuration(REWARD_DURATION);
     stakingF.notifyRewardAmount(REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Stake tokens for user1
+    
     vm.startPrank(user1);
     stakeTokenF.approve(address(stakingF), 100e18);
     stakingF.stakeERC20(100e18);
     vm.stopPrank();
 
-    // Stake tokens for owner
+    
     vm.startPrank(owner);
     stakeTokenF.approve(address(stakingF), 100e18);
     stakingF.stakeERC20(100e18);
     vm.stopPrank();
 
-    // Skip half the duration
+    
     vm.warp(block.timestamp + (REWARD_DURATION / 2));
 
-    // Check and claim rewards for user1
+    
     uint256 user1EarnedBefore = stakingF.earned(user1);
     assertTrue(user1EarnedBefore > 0, "User1 should have earned rewards");
     
@@ -419,7 +419,7 @@ function testRewardDistribution_MultipleUsers() public {
     assertEq(rewardTokenF.balanceOf(user1), user1EarnedBefore, 
         "User1 should receive correct reward amount");
 
-    // Check and claim rewards for owner
+    
     uint256 ownerEarnedBefore = stakingF.earned(owner);
     assertTrue(ownerEarnedBefore > 0, "Owner should have earned rewards");
     
@@ -430,25 +430,25 @@ function testRewardDistribution_MultipleUsers() public {
 }
 
 function testRewardDistribution_NoRewardsWhenNotStaked() public {
-    // Transfer rewards to the staking contract
+    
     vm.startPrank(user3);
     rewardTokenF.transfer(address(stakingF), REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Set up rewards duration and amount
+    
     vm.startPrank(owner);
     stakingF.setRewardsDuration(REWARD_DURATION);
     stakingF.notifyRewardAmount(REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Skip half the duration
+    
     vm.warp(block.timestamp + (REWARD_DURATION / 2));
 
-    // Check earned rewards for user without stake
+    
     uint256 user1Earned = stakingF.earned(user1);
     assertEq(user1Earned, 0, "User without stake should have zero rewards");
 
-    // Try to claim rewards
+    
     vm.prank(user1);
     stakingF.getReward(); 
 
@@ -469,7 +469,7 @@ function testRewardDistribution_NoRewardsWhenNotStaked() public {
     }
 
     function testStakingFacet_LastTimeRewardApplicable() public {
-    // Set up rewards
+    
     vm.startPrank(user3);
     rewardTokenF.transfer(address(stakingF), REWARD_AMOUNT);
     vm.stopPrank();
@@ -479,28 +479,28 @@ function testRewardDistribution_NoRewardsWhenNotStaked() public {
     stakingF.notifyRewardAmount(REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Initial last time reward applicable should be current timestamp
+    
     uint256 initialLastTime = stakingF.lastTimeRewardApplicable();
     assertEq(initialLastTime, block.timestamp, 
         "Initial last time reward applicable should be current timestamp");
 
-    // Warp to finish time
+    
     vm.warp(block.timestamp + REWARD_DURATION + 1);
 
-    // Last time reward applicable should not exceed finish time
+    
     uint256 finalLastTime = stakingF.lastTimeRewardApplicable();
     assertEq(finalLastTime, stakingF.getFinalAt(), 
         "Last time reward applicable should not exceed finish time");
 }
 
 function testStakingFacet_RewardPerToken() public {
-    // Stake tokens
+    
     vm.startPrank(owner);
     stakeTokenF.approve(address(stakingF), STAKE_AMOUNT);
     stakingF.stakeERC20(STAKE_AMOUNT);
     vm.stopPrank();
 
-    // Set up rewards
+    
     vm.startPrank(user3);
     rewardTokenF.transfer(address(stakingF), REWARD_AMOUNT);
     vm.stopPrank();
@@ -510,15 +510,15 @@ function testStakingFacet_RewardPerToken() public {
     stakingF.notifyRewardAmount(REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Initial reward per token should be 0
+    
     uint256 initialRewardPerToken = stakingF.rewardPerToken();
     assertEq(initialRewardPerToken, 0, 
         "Initial reward per token should be 0");
 
-    // Warp to half duration
+    
     vm.warp(block.timestamp + (REWARD_DURATION / 2));
 
-    // Reward per token should increase
+    
     uint256 midRewardPerToken = stakingF.rewardPerToken();
     assertTrue(midRewardPerToken > 0, 
         "Reward per token should increase over time");
@@ -526,7 +526,7 @@ function testStakingFacet_RewardPerToken() public {
 
 
 function testStakingFacet_Earned_ComplexScenario() public {
-    // Stake tokens for multiple users
+    
     vm.startPrank(owner);
     stakeTokenF.approve(address(stakingF), STAKE_AMOUNT);
     stakingF.stakeERC20(STAKE_AMOUNT);
@@ -537,7 +537,7 @@ function testStakingFacet_Earned_ComplexScenario() public {
     stakingF.stakeERC20(STAKE_AMOUNT);
     vm.stopPrank();
 
-    // Set up rewards
+    
     vm.startPrank(user3);
     rewardTokenF.transfer(address(stakingF), REWARD_AMOUNT);
     vm.stopPrank();
@@ -547,38 +547,38 @@ function testStakingFacet_Earned_ComplexScenario() public {
     stakingF.notifyRewardAmount(REWARD_AMOUNT);
     vm.stopPrank();
 
-    // Warp to half duration
+    
     vm.warp(block.timestamp + (REWARD_DURATION / 2));
 
-    // Check earned for both users
+    
     uint256 ownerEarned = stakingF.earned(owner);
     uint256 user1Earned = stakingF.earned(user1);
 
-    // Earned should be roughly equal as they staked the same amount
+    
     assertApproxEqRel(ownerEarned, user1Earned, 0.01e18, 
         "Earned rewards should be approximately equal for equal stakes");
 
-    // Claim rewards for owner
+    
     vm.prank(owner);
     stakingF.getReward();
 
-    // Earned for owner should reset
+    
     assertEq(stakingF.earned(owner), 0, 
         "Earned should reset after claiming");
 }
 
 function testStakingFacet_GetReward_NoRewards() public {
-    // Stake some tokens
+    
     vm.startPrank(owner);
     stakeTokenF.approve(address(stakingF), STAKE_AMOUNT);
     stakingF.stakeERC20(STAKE_AMOUNT);
     vm.stopPrank();
 
-    // Get reward without any rewards distributed
+    
     vm.prank(owner);
     stakingF.getReward();
 
-    // Balance should remain unchanged
+    
     assertEq(rewardTokenF.balanceOf(owner), 0, 
         "Should not receive any rewards when no rewards distributed");
 }
